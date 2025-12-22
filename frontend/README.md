@@ -10,18 +10,18 @@ This is the React frontend for the AI Tutor application.
     npm install
     ``n
 2.  **Run Development Server**:
-    `ash
-    npm run dev
-    ``n    The application will be available at `http://localhost:5173`.
+    ` ash
+npm run dev
+``n    The application will be available at  `http://localhost:5173`.
 
 ## Features
 
--   **Authentication**: Login and Register pages.
--   **Dashboard**: Visualizes learning progress using `recharts`.
--   **Note Assistant**: Upload audio files to get AI-generated notes.
--   **Map Generation**: Generate mind maps from text using `mermaid`.
--   **Error Book**: Upload problem images for AI analysis.
--   **Parent View**: View AI-generated learning reports.
+- **Authentication**: Login and Register pages.
+- **Dashboard**: Visualizes learning progress using `recharts`.
+- **Note Assistant**: Upload audio files to get AI-generated notes.
+- **Map Generation**: Generate mind maps from text using `mermaid`.
+- **Error Book**: Upload problem images for AI analysis.
+- **Parent View**: View AI-generated learning reports.
 
 ## Configuration
 

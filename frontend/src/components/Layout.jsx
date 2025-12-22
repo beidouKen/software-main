@@ -23,6 +23,7 @@ import {
   Map as MapIcon,
   Error as ErrorIcon,
   FamilyRestroom as FamilyIcon,
+  AdminPanelSettings as AdminIcon,
   Logout as LogoutIcon
 } from '@mui/icons-material';
 
@@ -39,7 +40,16 @@ export default function Layout() {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('userType');
+    localStorage.removeItem('studentId');
     navigate('/login');
+  };
+
+  // 检查是否有管理员权限（学生身份且学号为666）
+  const isAdmin = () => {
+    const userType = localStorage.getItem('userType');
+    const studentId = localStorage.getItem('studentId');
+    return userType === 'student' && studentId === '666';
   };
 
   const menuItems = [
@@ -49,6 +59,11 @@ export default function Layout() {
     { text: 'Error Book', icon: <ErrorIcon />, path: '/errors' },
     { text: 'Parent View', icon: <FamilyIcon />, path: '/parents' },
   ];
+
+  // 只有管理员才能看到管理员界面
+  if (isAdmin()) {
+    menuItems.push({ text: '管理员界面', icon: <AdminIcon />, path: '/admin' });
+  }
 
   const drawer = (
     <div>
