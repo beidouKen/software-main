@@ -1,18 +1,11 @@
-# Python
+@"
+# Python cache
 __pycache__/
 *.pyc
 
-# env files
+# env
 .env
 
 # local database
 *.db
-
-# Node
-node_modules/
-dist/
-build/
-
-# IDE
-.vscode/
-.idea/
+"@ | Out-File -Encoding utf8 -Append .gitignore
