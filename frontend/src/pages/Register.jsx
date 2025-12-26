@@ -27,6 +27,8 @@ export default function Register() {
     // 家长
     phone: "",
     student_id_for_parent: "", // 家长注册时需要关联的学生学号
+    // 管理员
+    username: "",
   });
   const [error, setError] = useState("");
 
@@ -41,6 +43,7 @@ export default function Register() {
         email: "",
         phone: "",
         student_id_for_parent: "",
+        username: "",
       });
       setError("");
     }
@@ -75,6 +78,13 @@ export default function Register() {
           phone: formData.phone,
           password: formData.password,
           student_id: formData.student_id_for_parent,
+        };
+      } else if (userType === "admin") {
+        endpoint = "/auth/register/admin";
+        data = {
+          username: formData.username,
+          password: formData.password,
+          name: formData.name,
         };
       }
 
@@ -120,6 +130,9 @@ export default function Register() {
                 </ToggleButton>
                 <ToggleButton value="parent" aria-label="家长">
                   家长
+                </ToggleButton>
+                <ToggleButton value="admin" aria-label="管理员">
+                  管理员
                 </ToggleButton>
               </ToggleButtonGroup>
             </Box>
@@ -231,6 +244,39 @@ export default function Register() {
                       ...formData,
                       student_id_for_parent: e.target.value,
                     })
+                  }
+                />
+              </>
+            )}
+
+            {/* 管理员注册表单 */}
+            {userType === "admin" && (
+              <>
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="username"
+                  label="用户名 (Username)"
+                  name="username"
+                  autoComplete="username"
+                  autoFocus
+                  value={formData.username}
+                  onChange={(e) =>
+                    setFormData({ ...formData, username: e.target.value })
+                  }
+                />
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="name"
+                  label="姓名 (Name)"
+                  name="name"
+                  autoComplete="name"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
                   }
                 />
               </>

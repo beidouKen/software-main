@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Text
 from sqlalchemy.orm import relationship
+from datetime import datetime
 from app.database import Base
 
 # 学生表
@@ -30,6 +31,7 @@ class Teacher(Base):
 
     # 关系
     students = relationship("StudentTeacher", back_populates="teacher")
+    knowledge_tags = relationship("KnowledgeTag", back_populates="teacher")
 
 
 # 家长表
@@ -119,3 +121,39 @@ class Exercise(Base):
 
     # 关系
     student = relationship("Student", back_populates="exercises")
+
+
+# 知识标签表（教学大纲）
+class KnowledgeTag(Base):
+    __tablename__ = "knowledge_tags"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)  # 标签名称，如"数学"、"英语"
+    content = Column(Text, nullable=True)  # 标签内容（一段文字描述）
+    
+    # 树形结构：parent_id 指向父标签，NULL 表示根标签
+    parent_id = Column(Integer, ForeignKey("knowledge_tags.id"), nullable=True, index=True)
+    
+    # 关联教师：教学大纲属于某个教师
+    teacher_id = Column(Integer, ForeignKey("teachers.id"), nullable=False, index=True)
+    
+    # 排序字段：用于控制同级标签的显示顺序
+    order = Column(Integer, default=0)
+    
+    # 时间戳
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # 关系
+    parent = relationship("KnowledgeTag", remote_side=[id], backref="children")
+    teacher = relationship("Teacher", back_populates="knowledge_tags")
+
+
+# 管理员表
+class Admin(Base):
+    __tablename__ = "admins"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True, nullable=False)  # 用户名
+    password = Column(String, nullable=False)  # 密码
+    name = Column(String, nullable=True)  # 姓名
