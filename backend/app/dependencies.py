@@ -14,7 +14,7 @@ def get_db():
         db.close()
 
 async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
-    """获取当前用户，支持学生、教师、家长三种身份"""
+    """获取当前用户，支持学生、教师、家长、管理员四种身份"""
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -36,6 +36,8 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
         user = db.query(models.Teacher).filter(models.Teacher.id == int(user_id)).first()
     elif user_type == "parent":
         user = db.query(models.Parent).filter(models.Parent.id == int(user_id)).first()
+    elif user_type == "admin":
+        user = db.query(models.Admin).filter(models.Admin.id == int(user_id)).first()
     else:
         raise credentials_exception
     

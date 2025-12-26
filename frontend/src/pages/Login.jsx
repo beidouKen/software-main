@@ -37,15 +37,44 @@ export default function Login() {
     data.append("password", formData.password);
 
     try {
-      const response = await api.post("/auth/token", data, {
+      // 在URL中添加user_type查询参数
+      const url = `/auth/token${userType ? `?user_type=${userType}` : ""}`;
+      const response = await api.post(url, data, {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
       });
-      localStorage.setItem("token", response.data.access_token);
-      localStorage.setItem("userType", userType);
-      // 如果是学生，保存学号
-      if (userType === "student") {
-        localStorage.setItem("studentId", formData.username);
+      const token = response.data.access_token;
+      localStorage.setItem("token", token);
+
+      // 从token中解码出真实的user_type，而不是使用前端选择的userType
+      try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        const actualUserType = payload.user_type;
+        localStorage.setItem("userType", actualUserType);
+
+        // 如果是学生，保存学号
+        if (actualUserType === "student") {
+          localStorage.setItem("studentId", payload.sub);
+        }
+
+        // 如果是管理员，跳转到管理员页面
+        if (actualUserType === "admin") {
+          navigate("/admin");
+          return;
+        }
+      } catch (decodeError) {
+        console.error("Error decoding token:", decodeError);
+        // 如果解码失败，使用前端选择的userType作为后备
+        localStorage.setItem("userType", userType);
+        if (userType === "student") {
+          localStorage.setItem("studentId", formData.username);
+        }
+        // 如果选择的是管理员，跳转到管理员页面
+        if (userType === "admin") {
+          navigate("/admin");
+          return;
+        }
       }
+
       navigate("/");
     } catch (err) {
       setError("登录失败，请检查您的凭据。");
@@ -56,6 +85,7 @@ export default function Login() {
     if (userType === "student") return "学号 (Student ID)";
     if (userType === "teacher") return "邮箱 (Email)";
     if (userType === "parent") return "电话 (Phone)";
+    if (userType === "admin") return "用户名 (Username)";
     return "用户名";
   };
 
@@ -94,6 +124,9 @@ export default function Login() {
                 </ToggleButton>
                 <ToggleButton value="parent" aria-label="家长">
                   家长
+                </ToggleButton>
+                <ToggleButton value="admin" aria-label="管理员">
+                  管理员
                 </ToggleButton>
               </ToggleButtonGroup>
             </Box>
