@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from datetime import timedelta
 from typing import Optional
 from app import database, models, schemas, auth_utils, config
-from app.dependencies import get_db
+from app.dependencies import get_db, get_current_user
 
 router = APIRouter()
 
@@ -323,3 +323,36 @@ async def login_for_access_token(
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+@router.get("/student/info", response_model=schemas.StudentInfo)
+def get_student_info(
+    current_user_data: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    user = current_user_data["user"]
+    user_type = current_user_data["user_type"]
+    
+    if user_type != "student":
+        raise HTTPException(status_code=403, detail="Only students can access this endpoint")
+    
+    # Get teachers
+    teachers = []
+    teacher_ids = []
+    for st in user.teachers:
+        teacher = db.query(models.Teacher).filter(models.Teacher.id == st.teacher_id).first()
+        if teacher:
+            teachers.append(teacher)
+            teacher_ids.append(teacher.id)
+            
+    # Get parents
+    parent_ids = [sp.parent_id for sp in user.parents]
+    
+    return {
+        "student_id": user.student_id,
+        "name": user.name,
+        "class_name": user.class_name,
+        "teacher_ids": teacher_ids,
+        "parent_ids": parent_ids,
+        "teachers": teachers
+    } 
+

@@ -28,6 +28,7 @@ class Teacher(Base):
     class_name = Column(String, nullable=True)  # 班级
     password = Column(String, nullable=False)  # 密码
     email = Column(String, unique=True, index=True)  # 邮箱
+    subject = Column(String, nullable=True)  # 学科
 
     # 关系
     students = relationship("StudentTeacher", back_populates="teacher")
@@ -79,11 +80,14 @@ class LearningMistake(Base):
     id = Column(Integer, primary_key=True, index=True)
     student_id = Column(String, ForeignKey("students.student_id"), nullable=False)
     date = Column(DateTime, nullable=True)  # 日期
-    time = Column(String, nullable=True)  # 时间
+    # time = Column(String, nullable=True)  # 时间 - 已删除
     subject = Column(String, nullable=True)  # 学科
-    content = Column(Text, nullable=True)  # 内容
+    content = Column(Text, nullable=True)  # 内容 (支持混合文段)
     chapter = Column(String, nullable=True)  # 章节
     knowledge_point = Column(String, nullable=True)  # 知识点
+    graph_1 = Column(String, nullable=False, default="")  # 必填，存图片路径
+    graph_2 = Column(String, nullable=True)   # 选填，存图片路径
+    note = Column(Text, nullable=True)        # 笔记，混合文段
 
     # 关系
     student = relationship("Student", back_populates="learning_mistakes")
@@ -113,11 +117,13 @@ class Exercise(Base):
     id = Column(Integer, primary_key=True, index=True)
     student_id = Column(String, ForeignKey("students.student_id"), nullable=False)
     date = Column(DateTime, nullable=True)  # 日期
-    time = Column(String, nullable=True)  # 时间
     subject = Column(String, nullable=True)  # 学科
     content = Column(Text, nullable=True)  # 内容
     chapter = Column(String, nullable=True)  # 章节
     knowledge_point = Column(String, nullable=True)  # 知识点
+    graph_1 = Column(String, nullable=False)  # 必填，存图片路径
+    graph_2 = Column(String, nullable=True)   # 选填，存图片路径
+    note = Column(Text, nullable=True)        # 笔记，混合文段
 
     # 关系
     student = relationship("Student", back_populates="exercises")
@@ -128,24 +134,28 @@ class KnowledgeTag(Base):
     __tablename__ = "knowledge_tags"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, nullable=False)  # 标签名称，如"数学"、"英语"
-    content = Column(Text, nullable=True)  # 标签内容（一段文字描述）
+    # name = Column(String, nullable=False)  # 已删除
+    # content = Column(Text, nullable=True)  # 标签内容（一段文字描述） - 已删除
     
-    # 树形结构：parent_id 指向父标签，NULL 表示根标签
-    parent_id = Column(Integer, ForeignKey("knowledge_tags.id"), nullable=True, index=True)
+    subject = Column(Text, nullable=True)  # 学科
+    chapter = Column(Text, nullable=True)  # 章节
+    knowledge_point = Column(Text, nullable=True)  # 知识点
+
+    # 树形结构：parent_id 指向父标签，NULL 表示根标签 - 已删除
+    # parent_id = Column(Integer, ForeignKey("knowledge_tags.id"), nullable=True, index=True)
     
     # 关联教师：教学大纲属于某个教师
     teacher_id = Column(Integer, ForeignKey("teachers.id"), nullable=False, index=True)
     
-    # 排序字段：用于控制同级标签的显示顺序
-    order = Column(Integer, default=0)
+    # 排序字段：用于控制同级标签的显示顺序 - 已删除
+    # order = Column(Integer, default=0)
     
-    # 时间戳
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    # 时间戳 - 已删除
+    # created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    # updated_at = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # 关系
-    parent = relationship("KnowledgeTag", remote_side=[id], backref="children")
+    # parent = relationship("KnowledgeTag", remote_side=[id], backref="children")
     teacher = relationship("Teacher", back_populates="knowledge_tags")
 
 

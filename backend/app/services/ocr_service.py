@@ -1,5 +1,6 @@
 import base64
 import httpx
+import traceback
 from app.config import settings
 
 class OCRService:
@@ -16,13 +17,17 @@ class OCRService:
             print(f"Processing image with Qwen-VL: {image_file.filename}")
             
             # Reset file cursor and read content
-            image_file.file.seek(0)
-            content = image_file.file.read()
+            await image_file.seek(0)
+            content = await image_file.read()
             
+            if not content:
+                print("Error: Read empty content from file.")
+                return "错误：无法读取图片内容。"
+
             # Encode to base64
             # Determine mime type based on filename extension roughly, or just use image/jpeg as generic for base64 header often works, 
             # but better to be slightly specific.
-            filename = image_file.filename.lower()
+            filename = image_file.filename.lower() if image_file.filename else "image.jpg"
             mime_type = "image/jpeg"
             if filename.endswith(".png"):
                 mime_type = "image/png"
@@ -56,7 +61,7 @@ class OCRService:
                 
                 if response.status_code != 200:
                     print(f"DashScope API Error: {response.status_code} - {response.text}")
-                    return f"OCR服务请求失败: {response.status_code}"
+                    return f"OCR服务请求失败: {response.status_code} - {response.text[:100]}"
                 
                 result = response.json()
                 if "choices" in result and len(result["choices"]) > 0:
@@ -66,7 +71,8 @@ class OCRService:
                     return "未能识别出文字。"
                 
         except Exception as e:
-            print(f"OCR Service Error: {e}")
+            print(f"OCR Service Error: {repr(e)}")
+            traceback.print_exc()
             return f"OCR处理出错: {str(e)}"
 
 ocr_service = OCRService()

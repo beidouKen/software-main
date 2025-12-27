@@ -38,6 +38,7 @@ class TeacherCreate(TeacherBase):
 
 class Teacher(TeacherBase):
     id: int
+    subject: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -78,6 +79,18 @@ class LoginRequest(BaseModel):
 
 # KnowledgeTag相关Schema
 class KnowledgeTagBase(BaseModel):
+    pass # Placeholder if needed
+
+class StudentInfo(BaseModel):
+    student_id: str
+    name: str
+    class_name: Optional[str]
+    teacher_ids: List[int]
+    parent_ids: List[int]
+    teachers: List[Teacher]
+
+    class Config:
+        from_attributes = True
     name: str
     content: Optional[str] = None
 

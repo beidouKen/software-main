@@ -3,14 +3,24 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.routers import note_assistant, map_generation, error_book, dashboard, parent_view, auth, admin
 from app.database import engine
 from app import models
+from app.services import data_sync
+from contextlib import asynccontextmanager
 
 # Create Database Tables
 models.Base.metadata.create_all(bind=engine)
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    data_sync.start_scheduler()
+    yield
+    # Shutdown
+
 app = FastAPI(
     title="AI Tutor API",
     description="Backend for AI Tutor Application",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 # CORS Configuration
